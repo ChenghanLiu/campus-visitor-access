@@ -1,23 +1,27 @@
+version: "3.9"
+
 services:
+
   mysql:
-    image: docker.1ms.run/mysql:8.0
-    container_name: lab_safety_mysql
+    image: mysql:8.0
+    container_name: campus_mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: lab_safety
-      MYSQL_USER: lab
-      MYSQL_PASSWORD: lab
+      MYSQL_DATABASE: campus_visitor
+      MYSQL_USER: campus
+      MYSQL_PASSWORD: campus
       TZ: Asia/Shanghai
     ports:
-      - "3308:3306"
-    command: [
-      "--character-set-server=utf8mb4",
-      "--collation-server=utf8mb4_unicode_ci",
-      "--default-time-zone=+08:00"
-    ]
+      - "3309:3306"
+    command:
+      [
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_unicode_ci",
+        "--default-time-zone=+08:00"
+      ]
     volumes:
-      - lab_safety_mysql_data:/var/lib/mysql
+      - campus_mysql_data:/var/lib/mysql
       - ./docker/mysql-init:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -proot || exit 1"]
@@ -29,30 +33,29 @@ services:
     build:
       context: .
       dockerfile: back/Dockerfile
-    container_name: lab_safety_backend
+    container_name: campus_backend
     restart: unless-stopped
     depends_on:
       mysql:
         condition: service_healthy
     environment:
       TZ: Asia/Shanghai
-      # Most Spring apps can read these if you wire them; if not, it's still fine.
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/lab_safety?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
-      SPRING_DATASOURCE_USERNAME: lab
-      SPRING_DATASOURCE_PASSWORD: lab
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/campus_visitor?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
+      SPRING_DATASOURCE_USERNAME: campus
+      SPRING_DATASOURCE_PASSWORD: campus
     ports:
-      - "8085:8085"
+      - "8086:8081"
 
   frontend:
     build:
       context: ./front/admin
       dockerfile: Dockerfile
-    container_name: lab_safety_frontend
-    restart: unless-stopped
+    container_name: campus_frontend
+    restart: "no"
     depends_on:
       - backend
     ports:
-      - "8083:80"
+      - "8087:80"
 
 volumes:
-  lab_safety_mysql_data:
+  campus_mysql_data:

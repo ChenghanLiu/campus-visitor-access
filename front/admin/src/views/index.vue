@@ -19,12 +19,9 @@
           <el-menu-item index="/users" v-if="isAdmin">用户管理</el-menu-item>
 
           <el-menu-item index="/labs">
-            实验室信息
+            楼栋信息
           </el-menu-item>
 
-          <el-menu-item index="/equipment">
-            设备管理
-          </el-menu-item>
 
           <el-menu-item index="/experiments">
             实验项目管理
@@ -34,12 +31,7 @@
             预约管理
           </el-menu-item>
 
-          <el-menu-item
-              index="/training"
-              v-if="role === 'ADMIN' || role === 'STUDENT'"
-          >
-            安全培训管理
-          </el-menu-item>
+
 
           <el-menu-item index="/inspection">安全检查管理</el-menu-item>
 
@@ -56,7 +48,7 @@
       <el-container>
         <el-header style="background: #fff;">
           <div class="header-right">
-            实验室安全管理系统
+            高校宿舍访客预约管理系统
           </div>
         </el-header>
 

@@ -23,8 +23,8 @@
 
         <el-form-item label="角色">
           <el-select v-model="form.role" placeholder="请选择角色">
-            <el-option label="学生" value="STUDENT" />
-            <el-option label="教师" value="TEACHER" />
+            <el-option label="访客" value="STUDENT" />
+            <el-option label="宿舍管理员" value="TEACHER" />
           </el-select>
         </el-form-item>
 

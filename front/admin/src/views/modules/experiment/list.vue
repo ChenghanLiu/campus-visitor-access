@@ -13,7 +13,7 @@
         />
         <el-input
             v-model="filters.labId"
-            placeholder="实验室ID labId"
+            placeholder="楼栋号 labId"
             style="width:180px;"
             clearable
             @keyup.enter.native="search"
@@ -42,7 +42,7 @@
       <el-table :data="list" border v-loading="loading">
 
         <el-table-column prop="id" label="ID" width="70" />
-        <el-table-column prop="labName" label="实验室" />
+        <el-table-column prop="labName" label="楼栋号" />
         <el-table-column prop="name" label="项目名称" />
         <el-table-column prop="startTime" label="开始时间" width="180" />
         <el-table-column prop="endTime" label="结束时间" width="180" />
@@ -106,7 +106,7 @@
     <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="700px">
       <el-form :model="form" label-width="110px">
 
-        <el-form-item label="实验室ID">
+        <el-form-item label="楼栋号">
           <el-input v-model="form.labId" />
         </el-form-item>
 
@@ -177,7 +177,7 @@
           <el-input v-model="reserveForm.experimentName" disabled />
         </el-form-item>
 
-        <el-form-item label="实验室ID">
+        <el-form-item label="楼栋号">
           <el-input v-model="reserveForm.labId" />
         </el-form-item>
 

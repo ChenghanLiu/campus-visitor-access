@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <div class="login-card">
-      <div class="title">智能高校实验室安全管理系统</div>
+      <div class="title">高校宿舍访客预约管理系统</div>
 
       <el-form
           ref="form"

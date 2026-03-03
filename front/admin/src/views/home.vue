@@ -138,8 +138,8 @@ export default {
     roleText(role) {
       const r = String(role || "").toUpperCase();
       if (r === "ADMIN") return "管理员";
-      if (r === "TEACHER") return "教师";
-      if (r === "STUDENT") return "学生";
+      if (r === "TEACHER") return "宿舍管理员";
+      if (r === "STUDENT") return "访客";
       return role || "-";
     }
   }

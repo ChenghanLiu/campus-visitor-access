@@ -34,12 +34,16 @@ public class ReservationService {
 
     /**
      * Blocking statuses for time conflict checks:
-     * - PENDING blocks
-     * - APPROVED blocks
-     * - REJECTED/CANCELLED do NOT block
+     * PENDING / APPROVED / CHECKED_IN block
      */
     private static final EnumSet<ReservationStatus> BLOCKING_STATUSES =
-            EnumSet.of(ReservationStatus.PENDING, ReservationStatus.APPROVED);
+            EnumSet.of(
+                    ReservationStatus.PENDING,
+                    ReservationStatus.APPROVED,
+                    ReservationStatus.CHECKED_IN
+            );
+
+    // ===================== CREATE =====================
 
     public Reservation createReservation(Long labId,
                                          Long equipmentId,
@@ -83,11 +87,10 @@ public class ReservationService {
         return saved;
     }
 
-    public Reservation approve(Long reservationId, String approverUsername, String decisionNote) {
-        Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Reservation not found"));
+    // ===================== APPROVE / REJECT =====================
 
-        ensurePending(reservation);
+    public Reservation approve(Long reservationId, String approverUsername, String decisionNote) {
+        Reservation reservation = findAndEnsureStatus(reservationId, ReservationStatus.PENDING);
 
         User approver = userRepository.findByUsername(approverUsername)
                 .orElseThrow(() -> new RuntimeException("Approver not found"));
@@ -97,16 +100,11 @@ public class ReservationService {
         reservation.setDecisionNote(decisionNote);
         reservation.setStatus(ReservationStatus.APPROVED);
 
-        Reservation saved = reservationRepository.save(reservation);
-        initializeForResponse(saved);
-        return saved;
+        return saveAndInit(reservation);
     }
 
     public Reservation reject(Long reservationId, String approverUsername, String decisionNote) {
-        Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Reservation not found"));
-
-        ensurePending(reservation);
+        Reservation reservation = findAndEnsureStatus(reservationId, ReservationStatus.PENDING);
 
         User approver = userRepository.findByUsername(approverUsername)
                 .orElseThrow(() -> new RuntimeException("Approver not found"));
@@ -116,22 +114,45 @@ public class ReservationService {
         reservation.setDecisionNote(decisionNote);
         reservation.setStatus(ReservationStatus.REJECTED);
 
-        Reservation saved = reservationRepository.save(reservation);
-        initializeForResponse(saved);
-        return saved;
+        return saveAndInit(reservation);
     }
 
-    /**
-     * STUDENT cancels their own reservation.
-     * Allowed statuses: PENDING, APPROVED
-     */
+    // ===================== CHECK IN =====================
+
+    public Reservation checkIn(Long reservationId, String adminUsername) {
+        Reservation reservation = findAndEnsureStatus(reservationId, ReservationStatus.APPROVED);
+
+        User admin = userRepository.findByUsername(adminUsername)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        reservation.setStatus(ReservationStatus.CHECKED_IN);
+        reservation.setCheckInTime(LocalDateTime.now());   // ✅ 新增
+        reservation.setApprover(admin);
+        reservation.setDecidedAt(LocalDateTime.now());
+
+        return saveAndInit(reservation);
+    }
+
+    public Reservation checkOut(Long reservationId, String adminUsername) {
+        Reservation reservation = findAndEnsureStatus(reservationId, ReservationStatus.CHECKED_IN);
+
+        User admin = userRepository.findByUsername(adminUsername)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        reservation.setStatus(ReservationStatus.CHECKED_OUT);
+        reservation.setCheckOutTime(LocalDateTime.now());  // ✅ 新增
+        reservation.setApprover(admin);
+        reservation.setDecidedAt(LocalDateTime.now());
+
+        return saveAndInit(reservation);
+    }
+
+    // ===================== CANCEL =====================
+
     public Reservation cancelAsStudent(Long reservationId, String studentUsername, String cancelNote) {
+
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Reservation not found"));
-
-        if (reservation.getStudent() == null || reservation.getStudent().getUsername() == null) {
-            throw new RuntimeException("Reservation student missing");
-        }
 
         if (!reservation.getStudent().getUsername().equals(studentUsername)) {
             throw new AccessDeniedException("Cannot cancel other user's reservation");
@@ -144,16 +165,11 @@ public class ReservationService {
 
         applyCancel(reservation, canceller, cancelNote);
 
-        Reservation saved = reservationRepository.save(reservation);
-        initializeForResponse(saved);
-        return saved;
+        return saveAndInit(reservation);
     }
 
-    /**
-     * ADMIN cancels any reservation.
-     * Allowed statuses: PENDING, APPROVED
-     */
     public Reservation cancelAsAdmin(Long reservationId, String adminUsername, String cancelNote) {
+
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Reservation not found"));
 
@@ -164,38 +180,38 @@ public class ReservationService {
 
         applyCancel(reservation, canceller, cancelNote);
 
-        Reservation saved = reservationRepository.save(reservation);
-        initializeForResponse(saved);
-        return saved;
+        return saveAndInit(reservation);
     }
 
     private void applyCancel(Reservation reservation, User canceller, String cancelNote) {
         reservation.setStatus(ReservationStatus.CANCELLED);
-        reservation.setApprover(canceller); // audit: who cancelled (student/admin)
+        reservation.setApprover(canceller);
         reservation.setDecidedAt(LocalDateTime.now());
         reservation.setDecisionNote(cancelNote);
     }
 
-    private void ensurePending(Reservation reservation) {
-        if (reservation.getStatus() == null) {
-            throw new RuntimeException("Reservation status is missing");
+    // ===================== HELPERS =====================
+
+    private Reservation findAndEnsureStatus(Long reservationId, ReservationStatus expected) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("Reservation not found"));
+
+        if (reservation.getStatus() != expected) {
+            throw new RuntimeException("Invalid status transition");
         }
-        if (reservation.getStatus() != ReservationStatus.PENDING) {
-            throw new RuntimeException("Only PENDING reservations can be decided");
-        }
+        return reservation;
     }
 
     private void ensureCancelable(Reservation reservation) {
-        if (reservation.getStatus() == null) {
-            throw new RuntimeException("Reservation status is missing");
-        }
         if (reservation.getStatus() == ReservationStatus.REJECTED) {
             throw new RuntimeException("REJECTED reservation cannot be cancelled");
         }
         if (reservation.getStatus() == ReservationStatus.CANCELLED) {
             throw new RuntimeException("Reservation already cancelled");
         }
-        // PENDING / APPROVED are OK
+        if (reservation.getStatus() == ReservationStatus.CHECKED_OUT) {
+            throw new RuntimeException("Already checked out");
+        }
     }
 
     private void validateTimeRange(LocalDateTime startTime, LocalDateTime endTime) {
@@ -203,19 +219,17 @@ public class ReservationService {
             throw new RuntimeException("Start time and end time are required");
         }
         if (!startTime.isBefore(endTime)) {
-            throw new RuntimeException("Invalid time range: startTime must be before endTime");
+            throw new RuntimeException("Invalid time range");
         }
     }
 
-    /**
-     * Initialize LAZY relations that ReservationMapper reads.
-     * Prevents LazyInitializationException when mapping happens outside transaction.
-     */
-    private void initializeForResponse(Reservation reservation) {
-        if (reservation == null) {
-            return;
-        }
+    private Reservation saveAndInit(Reservation reservation) {
+        Reservation saved = reservationRepository.save(reservation);
+        initializeForResponse(saved);
+        return saved;
+    }
 
+    private void initializeForResponse(Reservation reservation) {
         if (reservation.getLab() != null) {
             reservation.getLab().getId();
             reservation.getLab().getName();

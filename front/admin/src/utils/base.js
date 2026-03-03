@@ -9,7 +9,7 @@ const base = {
     },
     getProjectName(){
         return {
-            projectName: "智能高校实验室安全管理系统"
+            projectName: "高校宿舍访客预约管理系统"
         } 
     }
 }

@@ -59,11 +59,11 @@
         </el-tab-pane>
 
         <!-- Lab -->
-        <el-tab-pane label="实验室统计" name="lab">
+        <el-tab-pane label="楼栋信息统计" name="lab">
           <el-descriptions :column="3" border v-loading="loading.labOverview" style="margin-bottom:12px;">
-            <el-descriptions-item label="实验室总数">{{ labOverview.totalLabs }}</el-descriptions-item>
+            <el-descriptions-item label="楼栋总数">{{ labOverview.totalLabs }}</el-descriptions-item>
             <el-descriptions-item label="总容量">{{ labOverview.totalCapacity }}</el-descriptions-item>
-            <el-descriptions-item label="设备总数">{{ labOverview.totalEquipment }}</el-descriptions-item>
+            <el-descriptions-item label="宿舍总数">{{ labOverview.totalEquipment }}</el-descriptions-item>
             <el-descriptions-item label="预约总数">{{ labOverview.totalReservations }}</el-descriptions-item>
             <el-descriptions-item label="活跃预约">{{ labOverview.activeReservations }}</el-descriptions-item>
             <el-descriptions-item label="检查计划">{{ labOverview.totalInspectionPlans }}</el-descriptions-item>
@@ -71,10 +71,10 @@
           </el-descriptions>
 
           <el-table :data="labStatsByLab" border v-loading="loading.labByLab">
-            <el-table-column prop="labId" label="实验室ID" width="120" />
-            <el-table-column prop="labName" label="实验室名称" />
+            <el-table-column prop="labId" label="楼栋号" width="120" />
+            <el-table-column prop="labName" label="楼栋名称" />
             <el-table-column prop="capacity" label="容量" width="100" />
-            <el-table-column prop="equipmentCount" label="设备数" width="110" />
+            <el-table-column prop="equipmentCount" label="宿舍间数" width="110" />
             <el-table-column prop="totalReservations" label="总预约" width="110" />
             <el-table-column prop="activeReservations" label="活跃预约" width="110" />
             <el-table-column prop="inspectionPlans" label="检查计划" width="110" />
@@ -104,8 +104,8 @@
           </el-descriptions>
 
           <el-table :data="inspectionStatsByLab" border v-loading="loading.inspectionByLab">
-            <el-table-column prop="labId" label="实验室ID" width="120" />
-            <el-table-column prop="labName" label="实验室名称" />
+            <el-table-column prop="labId" label="楼栋号" width="120" />
+            <el-table-column prop="labName" label="楼栋名称" />
             <el-table-column prop="totalPlans" label="计划总数" width="110" />
             <el-table-column prop="completedPlans" label="完成计划" width="110" />
             <el-table-column prop="totalRecords" label="记录总数" width="110" />

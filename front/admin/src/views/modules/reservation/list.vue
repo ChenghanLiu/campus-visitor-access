@@ -10,9 +10,9 @@
 
       <el-table :data="list" border v-loading="loading">
         <el-table-column prop="id" label="ID" width="70" />
-        <el-table-column prop="labName" label="实验室" />
-        <el-table-column prop="equipmentName" label="设备" />
-        <el-table-column prop="studentUsername" label="学生" />
+        <el-table-column prop="labName" label="楼栋" />
+        <el-table-column prop="equipmentName" label="宿舍" />
+        <el-table-column prop="studentUsername" label="访客" />
         <el-table-column prop="status" label="状态" />
         <el-table-column prop="startTime" label="开始时间" />
         <el-table-column prop="endTime" label="结束时间" />
@@ -44,11 +44,11 @@
 
     <el-dialog title="新建预约" :visible.sync="dialogVisible">
       <el-form :model="form">
-        <el-form-item label="实验室ID">
+        <el-form-item label="楼栋号">
           <el-input v-model="form.labId" />
         </el-form-item>
 
-        <el-form-item label="设备ID">
+        <el-form-item label="宿舍号">
           <el-input v-model="form.equipmentId" />
         </el-form-item>
 

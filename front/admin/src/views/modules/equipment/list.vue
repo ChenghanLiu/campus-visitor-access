@@ -21,12 +21,14 @@
 
         <el-input
             v-model="filters.keyword"
-            placeholder="关键字（名称/型号/规格/描述）"
+            placeholder="关键字（楼栋名称/型号/规格/描述）"
             clearable
             style="width: 280px;"
             @keyup.enter.native="onSearch"
         />
-
+        <el-button type="text" @click="goBack">
+          ← 返回楼栋列表
+        </el-button>
         <el-button type="primary" @click="onSearch">搜索</el-button>
         <el-button @click="onReset">重置</el-button>
 
@@ -35,7 +37,7 @@
             type="success"
             @click="openCreate"
         >
-          新增设备
+          新增宿舍
         </el-button>
       </div>
 
@@ -47,36 +49,27 @@
       >
         <el-table-column prop="id" label="ID" width="70" />
 
-        <!-- 图片（静态映射：public/equipment/*） -->
-        <el-table-column label="图片" width="90" align="center">
-          <template slot-scope="scope">
-            <el-image
-                :src="getEquipmentImage(scope.row)"
-                fit="cover"
-                style="width:56px;height:56px;border-radius:8px;"
-                :preview-src-list="[getEquipmentImage(scope.row)]"
-            >
-              <div
-                  slot="error"
-                  style="width:56px;height:56px;display:flex;align-items:center;justify-content:center;background:#f5f7fa;border-radius:8px;color:#909399;font-size:12px;"
-              >
-                无图
-              </div>
-            </el-image>
-          </template>
-        </el-table-column>
 
-        <el-table-column prop="labName" label="实验室" />
-        <el-table-column prop="category" label="类别" width="140" />
-        <el-table-column prop="name" label="名称" />
-        <el-table-column prop="model" label="型号" width="140" />
+        <el-table-column prop="labName" label="楼栋名称" />
+        <el-table-column prop="category" label="宿舍类型" width="140" />
+        <el-table-column prop="name" label="宿舍房间号" />
+        <el-table-column prop="model" label="房间型" width="140" />
         <el-table-column prop="specification" label="规格" />
-        <el-table-column prop="quantity" label="数量" width="90" />
-        <el-table-column prop="purchaseDate" label="购置日期" width="130" />
-        <el-table-column prop="storageLocation" label="存放位置" />
+        <el-table-column prop="quantity" label="床位数量" width="90" />
+        <el-table-column prop="purchaseDate" label="起租日期" width="130" />
+        <el-table-column prop="storageLocation" label="楼层" />
         <el-table-column label="状态" width="120">
           <template slot-scope="scope">
             {{ formatStatus(scope.row.status) }}
+          </template>
+        </el-table-column>
+        <!-- 预约列：所有人可见 -->
+        <!-- 预约列：所有人可见 -->
+        <el-table-column label="预约" width="110" fixed="right">
+          <template slot-scope="scope">
+            <el-button size="mini" type="success" @click="openReserve(scope.row)">
+              预约
+            </el-button>
           </template>
         </el-table-column>
 
@@ -84,6 +77,7 @@
         <!-- 管理员操作列 -->
         <el-table-column v-if="isAdmin" label="操作" width="200">
           <template slot-scope="scope">
+
             <el-button size="mini" type="primary" @click="openEdit(scope.row)">
               编辑
             </el-button>
@@ -111,7 +105,7 @@
     <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="720px">
       <el-form :model="form" label-width="110px">
 
-        <el-form-item label="实验室ID">
+        <el-form-item label="楼栋号">
           <el-input v-model="form.labId" />
         </el-form-item>
 
@@ -170,6 +164,47 @@
         <el-button type="primary" @click="submit">确定</el-button>
       </span>
     </el-dialog>
+    <el-dialog title="新建预约" :visible.sync="reserveDialogVisible" width="600px">
+      <el-form :model="reserveForm" label-width="110px">
+        <el-form-item label="楼栋号">
+          <el-input v-model="reserveForm.labId" disabled />
+        </el-form-item>
+
+        <el-form-item label="宿舍号">
+          <el-input v-model="reserveForm.equipmentId" disabled />
+        </el-form-item>
+
+        <el-form-item label="开始时间">
+          <el-date-picker
+              v-model="reserveForm.startTime"
+              type="datetime"
+              value-format="yyyy-MM-ddTHH:mm:ss"
+          />
+        </el-form-item>
+
+        <el-form-item label="结束时间">
+          <el-date-picker
+              v-model="reserveForm.endTime"
+              type="datetime"
+              value-format="yyyy-MM-ddTHH:mm:ss"
+          />
+        </el-form-item>
+
+        <el-form-item label="用途">
+          <el-input v-model="reserveForm.purpose" />
+        </el-form-item>
+
+        <el-form-item label="备注">
+          <el-input v-model="reserveForm.remark" />
+        </el-form-item>
+      </el-form>
+
+      <span slot="footer">
+        <el-button @click="reserveDialogVisible=false">取消</el-button>
+        <el-button type="primary" @click="submitReserve">提交预约</el-button>
+      </span>
+    </el-dialog>
+
 
   </div>
 </template>
@@ -181,10 +216,13 @@ import {
   updateEquipment,
   deleteEquipment
 } from "@/api/equipment";
+import { createReservation } from "@/api/reservation";
 
 export default {
   data() {
     return {
+      fixedLabId: null,
+      fixedLabName: "",
       loading: false,
 
       rows: [],
@@ -197,7 +235,6 @@ export default {
         keyword: ""
       },
 
-      // 新增你要的类别：实验室器材
       categoryOptions: [
         "显微镜",
         "玻璃器皿",
@@ -213,6 +250,7 @@ export default {
       isEdit: false,
       editId: null,
 
+      // ✅ 宿舍新增/编辑表单（原来的）
       form: {
         labId: "",
         category: "",
@@ -224,8 +262,20 @@ export default {
         storageLocation: "",
         status: "",
         description: ""
+      },
+
+      // ✅ 预约弹窗：必须放在根级别（和 form 同级）
+      reserveDialogVisible: false,
+      reserveForm: {
+        labId: "",
+        equipmentId: "",
+        startTime: "",
+        endTime: "",
+        purpose: "",
+        remark: ""
       }
     };
+
   },
 
   computed: {
@@ -259,8 +309,18 @@ export default {
     }
   },
 
+
   mounted() {
+    this.fixedLabId = this.$route.query.labId ? Number(this.$route.query.labId) : null;
+    this.fixedLabName = this.$route.query.labName || "";
     this.load();
+  },
+  watch: {
+    "$route.query.labId"() {
+      this.fixedLabId = this.$route.query.labId ? Number(this.$route.query.labId) : null;
+      this.fixedLabName = this.$route.query.labName || "";
+      this.load();
+    }
   },
 
   methods: {
@@ -306,6 +366,8 @@ export default {
         page: this.page - 1,
         size: this.size
       };
+      if (this.fixedLabId) params.labId = this.fixedLabId;
+      if (this.fixedLabId) this.form.labId = this.fixedLabId;
 
       // 如果后端未来支持 category/keyword，这里会自动生效；不支持也不会影响
       if (this.filters.category) params.category = this.filters.category;
@@ -345,6 +407,37 @@ export default {
       this.filters.keyword = "";
       this.page = 1;
       this.load();
+    },
+    goBack() {
+      this.$router.push('/labs')   // 不是 /lab，是你 router 里的 /labs
+    },
+    openReserve(row) {
+      const labId = this.$route.query.labId;
+      if (!labId) {
+        this.$message.error("缺少楼栋ID，请从楼栋页面进入宿舍列表");
+        return;
+      }
+
+      this.reserveForm = {
+        labId: Number(labId),
+        equipmentId: row.id,
+        startTime: "",
+        endTime: "",
+        purpose: "",
+        remark: ""
+      };
+
+      this.reserveDialogVisible = true;
+    },
+    async submitReserve() {
+      try {
+        await createReservation(this.reserveForm);
+        this.$message.success("预约提交成功");
+        this.reserveDialogVisible = false;
+      } catch (e) {
+        const msg = e?.response?.data?.message || e?.message || "预约失败";
+        this.$message.error(msg);
+      }
     },
 
     onPageChange(p) {
@@ -436,6 +529,9 @@ export default {
         this.$message.error(msg);
       }
     }
+
+
+
   }
 };
 </script>

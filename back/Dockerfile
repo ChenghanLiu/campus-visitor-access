@@ -1,5 +1,5 @@
 # -------- build stage --------
-FROM docker.1ms.run/maven:3.9-eclipse-temurin-17 AS build
+FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 
 # Copy pom first for dependency cache
@@ -13,7 +13,7 @@ COPY src src
 RUN ./mvnw -q -DskipTests package
 
 # -------- runtime stage --------
-FROM docker.1ms.run/eclipse-temurin:17-jre
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar /app/app.jar
 EXPOSE 8085

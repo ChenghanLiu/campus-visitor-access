@@ -98,6 +98,18 @@ public class Reservation {
     public LocalDateTime getDecidedAt() { return decidedAt; }
     public void setDecidedAt(LocalDateTime decidedAt) { this.decidedAt = decidedAt; }
 
+    @Column(name = "check_in_time")
+    private LocalDateTime checkInTime;
+
+    @Column(name = "check_out_time")
+    private LocalDateTime checkOutTime;
+
+    public LocalDateTime getCheckInTime() { return checkInTime; }
+    public void setCheckInTime(LocalDateTime checkInTime) { this.checkInTime = checkInTime; }
+
+    public LocalDateTime getCheckOutTime() { return checkOutTime; }
+    public void setCheckOutTime(LocalDateTime checkOutTime) { this.checkOutTime = checkOutTime; }
+
     public String getDecisionNote() { return decisionNote; }
     public void setDecisionNote(String decisionNote) { this.decisionNote = decisionNote; }
 

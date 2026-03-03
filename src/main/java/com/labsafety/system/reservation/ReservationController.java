@@ -92,6 +92,38 @@ public class ReservationController {
     }
 
     /**
+     * ADMIN: on-site check in (visitor arrived).
+     * Only allowed when status == APPROVED
+     */
+    @PutMapping("/{id}/check-in")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ReservationResponse checkIn(@PathVariable Long id,
+                                       Authentication authentication) {
+
+        String adminUsername = authentication.getName();
+
+        Reservation reservation = reservationService.checkIn(id, adminUsername);
+
+        return ReservationMapper.toResponse(reservation);
+    }
+
+    /**
+     * ADMIN: on-site check out (visitor left).
+     * Only allowed when status == CHECKED_IN
+     */
+    @PutMapping("/{id}/check-out")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ReservationResponse checkOut(@PathVariable Long id,
+                                        Authentication authentication) {
+
+        String adminUsername = authentication.getName();
+
+        Reservation reservation = reservationService.checkOut(id, adminUsername);
+
+        return ReservationMapper.toResponse(reservation);
+    }
+
+    /**
      * STUDENT cancels their own reservation.
      */
     @PutMapping("/{id}/cancel")

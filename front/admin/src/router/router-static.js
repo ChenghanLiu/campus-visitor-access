@@ -70,7 +70,7 @@ export const routes = [
 			// ✅ 已实现：设备管理
 			{
 				path: '/equipment',
-				name: '设备管理',
+				name: '宿舍管理',
 				component: () => import('@/views/modules/equipment/list.vue')
 			},
 
@@ -88,7 +88,7 @@ export const routes = [
 			},
 			{
 				path: "/labs",
-				name: "实验室管理",
+				name: "楼栋管理",
 				component: () => import("@/views/modules/lab/list.vue")
 			},
 			{
@@ -102,11 +102,6 @@ export const routes = [
 				component: () => import('@/views/modules/reservation/list.vue')
 			},
 
-			{
-				path: "/training",
-				name: "安全培训管理",
-				component: () => import("@/views/modules/training/list.vue")
-			},
 
 			{
 				path: "/inspection",

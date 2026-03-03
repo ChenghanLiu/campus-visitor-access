@@ -3,10 +3,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3308/lab_safety?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: lab
-    password: lab
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3309/campus_visitor?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
+    username: campus
+    password: campus
 
   jpa:
     hibernate:
@@ -17,6 +16,7 @@ spring:
     enabled: true
 
 app:
+  upload-dir: ${user.dir}/uploads
   jwt:
     secret: "YjVhMmQyMzQ0YjQ4NGY5NTk5M2EwMjk0YjQ0ZGFkYTQxM2YzYTQ1M2IxM2Y3YTFkZGI4M2Q5ZmY2MDYxZg=="
     expiration-ms: 3600000

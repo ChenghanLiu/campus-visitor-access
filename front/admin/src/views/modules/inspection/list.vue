@@ -6,7 +6,7 @@
       <div style="margin-bottom:16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
         <el-input
             v-model="filters.labId"
-            placeholder="实验室ID（必填）"
+            placeholder="楼栋号（必填）"
             style="width: 200px;"
             clearable
         />
@@ -24,7 +24,7 @@
       <!-- 表格 -->
       <el-table :data="list" border v-loading="loading">
         <el-table-column prop="id" label="计划ID" width="90" />
-        <el-table-column prop="labId" label="实验室ID" width="100" />
+        <el-table-column prop="labId" label="楼栋号" width="100" />
         <el-table-column prop="inspectorId" label="检查员ID" width="110" />
         <el-table-column prop="inspectionTime" label="检查时间" width="180" />
         <el-table-column prop="content" label="检查内容" />
@@ -65,7 +65,7 @@
     <!-- 新建检查计划 -->
     <el-dialog title="新建检查计划（Admin）" :visible.sync="createVisible" width="700px">
       <el-form :model="createForm" label-width="110px">
-        <el-form-item label="实验室ID">
+        <el-form-item label="楼栋号">
           <el-input v-model="createForm.labId" />
         </el-form-item>
 
@@ -209,7 +209,7 @@ export default {
     async load() {
       const labId = String(this.filters.labId || "").trim();
       if (!labId) {
-        this.$message.warning("请先输入实验室ID");
+        this.$message.warning("请先输入楼栋号");
         return;
       }
 

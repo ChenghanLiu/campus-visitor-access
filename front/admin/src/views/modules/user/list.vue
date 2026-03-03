@@ -154,8 +154,8 @@ export default {
     formatRole(role) {
       const map = {
         ADMIN: "管理员",
-        TEACHER: "教师",
-        STUDENT: "学生"
+        TEACHER: "宿舍管理员",
+        STUDENT: "访客"
       };
       return map[role] || role;
     },
