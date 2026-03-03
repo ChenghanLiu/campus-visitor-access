@@ -1,0 +1,58 @@
+services:
+  mysql:
+    image: docker.1ms.run/mysql:8.0
+    container_name: lab_safety_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: lab_safety
+      MYSQL_USER: lab
+      MYSQL_PASSWORD: lab
+      TZ: Asia/Shanghai
+    ports:
+      - "3308:3306"
+    command: [
+      "--character-set-server=utf8mb4",
+      "--collation-server=utf8mb4_unicode_ci",
+      "--default-time-zone=+08:00"
+    ]
+    volumes:
+      - lab_safety_mysql_data:/var/lib/mysql
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -proot || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build:
+      context: .
+      dockerfile: back/Dockerfile
+    container_name: lab_safety_backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      TZ: Asia/Shanghai
+      # Most Spring apps can read these if you wire them; if not, it's still fine.
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/lab_safety?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
+      SPRING_DATASOURCE_USERNAME: lab
+      SPRING_DATASOURCE_PASSWORD: lab
+    ports:
+      - "8085:8085"
+
+  frontend:
+    build:
+      context: ./front/admin
+      dockerfile: Dockerfile
+    container_name: lab_safety_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8083:80"
+
+volumes:
+  lab_safety_mysql_data:
