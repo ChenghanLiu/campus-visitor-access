@@ -7,7 +7,7 @@
         <div class="sub">
           当前角色：<b>{{ roleLabel }}</b>
           <span class="dot">·</span>
-          后端：<span class="mono">{{ apiBase }}</span>
+
         </div>
       </div>
 
@@ -446,8 +446,8 @@ export default {
       return this.role === "TEACHER";
     },
     roleLabel() {
-      if (this.isStudent) return "访客（STUDENT）";
-      if (this.isTeacher) return "宿舍管理员（TEACHER）";
+      if (this.isStudent) return "访客";
+      if (this.isTeacher) return "宿舍管理员";
       return this.role || "UNKNOWN";
     },
 

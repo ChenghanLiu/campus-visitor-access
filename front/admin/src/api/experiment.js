@@ -33,7 +33,6 @@ export function updateExperimentProject(id, data) {
   });
 }
 
-// 你没给 delete，但通常是这个路径；如果后端没有 DELETE，会在前端提示失败
 export function deleteExperimentProject(id) {
   return http({
     url: `/api/experiment-projects/${id}`,

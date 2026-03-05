@@ -272,7 +272,7 @@ export default {
 
       const apiBase =
           process.env.VUE_APP_API_BASE ||
-          window.location.origin.replace(":8082", ":8081"); // 你本地后端就是 8081
+          window.location.origin.replace(":8082", ":8081"); // 你本地后端
 
       const fullUrl = res.url.startsWith("http")
           ? res.url
