@@ -19,44 +19,11 @@
           </el-descriptions>
         </el-tab-pane>
 
-        <!-- Experiment -->
-        <el-tab-pane label="实验项目统计" name="experiment">
-          <el-table :data="experimentStats" border v-loading="loading.experiment">
-            <el-table-column prop="experimentProjectId" label="项目ID" width="120" />
-            <el-table-column prop="experimentProjectName" label="项目名称" />
-            <el-table-column prop="reservationCount" label="预约数" width="120" />
-          </el-table>
-        </el-tab-pane>
 
-        <!-- Training -->
-        <el-tab-pane label="培训统计" name="training">
-          <el-descriptions :column="3" border v-loading="loading.trainingOverview" style="margin-bottom:12px;">
-            <el-descriptions-item label="总课程">{{ trainingOverview.totalCourses }}</el-descriptions-item>
-            <el-descriptions-item label="总报名">{{ trainingOverview.totalEnrollments }}</el-descriptions-item>
-            <el-descriptions-item label="已提交">{{ trainingOverview.submittedAttempts }}</el-descriptions-item>
-            <el-descriptions-item label="通过">{{ trainingOverview.passedAttempts }}</el-descriptions-item>
-            <el-descriptions-item label="通过率">{{ trainingOverview.passRate }}</el-descriptions-item>
-          </el-descriptions>
 
-          <el-table :data="trainingCourseStats" border v-loading="loading.trainingCourses">
-            <el-table-column prop="courseId" label="课程ID" width="120" />
-            <el-table-column prop="courseTitle" label="课程标题" />
-            <el-table-column prop="submittedAttempts" label="已提交" width="120" />
-            <el-table-column prop="passedAttempts" label="通过" width="120" />
-            <el-table-column prop="passRate" label="通过率" width="120" />
-          </el-table>
 
-          <el-pagination
-              style="margin-top:16px;"
-              background
-              layout="total, sizes, prev, pager, next"
-              :total="trainingTotal"
-              :page-size="trainingSize"
-              :page-sizes="[10, 20, 50]"
-              @current-change="changeTrainingPage"
-              @size-change="changeTrainingSize"
-          />
-        </el-tab-pane>
+
+
 
         <!-- Lab -->
         <el-tab-pane label="楼栋信息统计" name="lab">
@@ -94,14 +61,7 @@
         </el-tab-pane>
 
         <!-- Inspection -->
-        <el-tab-pane label="检查统计" name="inspection">
-          <el-descriptions :column="3" border v-loading="loading.inspectionOverview" style="margin-bottom:12px;">
-            <el-descriptions-item label="计划总数">{{ inspectionOverview.totalPlans }}</el-descriptions-item>
-            <el-descriptions-item label="完成计划">{{ inspectionOverview.completedPlans }}</el-descriptions-item>
-            <el-descriptions-item label="记录总数">{{ inspectionOverview.totalRecords }}</el-descriptions-item>
-            <el-descriptions-item label="不安全">{{ inspectionOverview.unsafeCount }}</el-descriptions-item>
-            <el-descriptions-item label="安全率">{{ inspectionOverview.safeRate }}</el-descriptions-item>
-          </el-descriptions>
+
 
           <el-table :data="inspectionStatsByLab" border v-loading="loading.inspectionByLab">
             <el-table-column prop="labId" label="楼栋号" width="120" />
@@ -113,17 +73,7 @@
             <el-table-column prop="safeRate" label="安全率" width="110" />
           </el-table>
 
-          <el-pagination
-              style="margin-top:16px;"
-              background
-              layout="total, sizes, prev, pager, next"
-              :total="inspectionTotal"
-              :page-size="inspectionSize"
-              :page-sizes="[10, 20, 50]"
-              @current-change="changeInspectionPage"
-              @size-change="changeInspectionSize"
-          />
-        </el-tab-pane>
+
 
       </el-tabs>
     </el-card>
@@ -219,48 +169,10 @@ export default {
       }
     },
 
-    async loadExperiment() {
-      this.loading.experiment = true;
-      try {
-        const res = await getExperimentStats();
-        this.experimentStats = res.data || [];
-      } catch (e) {
-        this.$message.error("实验项目统计加载失败");
-      } finally {
-        this.loading.experiment = false;
-      }
-    },
 
-    async loadTrainingOverview() {
-      this.loading.trainingOverview = true;
-      try {
-        const res = await getTrainingOverviewStats();
-        this.trainingOverview = res.data || this.trainingOverview;
-      } catch (e) {
-        this.$message.error("培训总览统计加载失败");
-      } finally {
-        this.loading.trainingOverview = false;
-      }
-    },
 
-    async loadTrainingCourses() {
-      this.loading.trainingCourses = true;
-      try {
-        const res = await getTrainingCourseStats({
-          page: this.trainingPage - 1,
-          size: this.trainingSize
-        });
-        const data = res.data || {};
-        this.trainingCourseStats = data.content || [];
-        this.trainingTotal = Number(data.totalElements || 0);
-      } catch (e) {
-        this.$message.error("培训课程统计加载失败");
-        this.trainingCourseStats = [];
-        this.trainingTotal = 0;
-      } finally {
-        this.loading.trainingCourses = false;
-      }
-    },
+
+
 
     changeTrainingPage(p) {
       this.trainingPage = p;
@@ -296,7 +208,7 @@ export default {
         this.labStatsByLab = data.content || [];
         this.labTotal = Number(data.totalElements || 0);
       } catch (e) {
-        this.$message.error("实验室分实验室统计加载失败");
+        this.$message.error("统计加载失败");
         this.labStatsByLab = [];
         this.labTotal = 0;
       } finally {

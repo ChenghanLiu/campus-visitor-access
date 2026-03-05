@@ -269,7 +269,7 @@ export default {
         return;
       }
 
-      // ✅ 关键：把 /uploads/... 变成绝对地址，避免 8082 吃掉路径跳首页
+
       const apiBase =
           process.env.VUE_APP_API_BASE ||
           window.location.origin.replace(":8082", ":8081"); // 你本地后端就是 8081
@@ -351,7 +351,6 @@ export default {
         await deleteLab(id);
         this.$message.success("删除成功");
 
-        // 顺便把本机绑定的封面也删掉（可选）
         const map = this.getCoverMap();
         delete map[String(id)];
         localStorage.setItem("labImageMap", JSON.stringify(map));

@@ -37,7 +37,11 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/", "/error", "/favicon.ico",
                                 "/api/auth/**",
+
                                 "/uploads/**",
+
+                                "/api/admin/upload",
+
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"

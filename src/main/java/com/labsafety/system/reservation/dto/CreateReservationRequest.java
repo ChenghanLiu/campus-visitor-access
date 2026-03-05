@@ -25,6 +25,12 @@ public class CreateReservationRequest {
     @Size(max = 500)
     private String remark;
 
+    @Size(max = 255)
+    private String idCardPhotoUrl;
+
+    @Size(max = 255)
+    private String facePhotoUrl;
+
     public CreateReservationRequest() {
     }
 
@@ -75,4 +81,9 @@ public class CreateReservationRequest {
     public void setRemark(String remark) {
         this.remark = remark;
     }
+    public String getIdCardPhotoUrl() { return idCardPhotoUrl; }
+    public void setIdCardPhotoUrl(String idCardPhotoUrl) { this.idCardPhotoUrl = idCardPhotoUrl; }
+
+    public String getFacePhotoUrl() { return facePhotoUrl; }
+    public void setFacePhotoUrl(String facePhotoUrl) { this.facePhotoUrl = facePhotoUrl; }
 }

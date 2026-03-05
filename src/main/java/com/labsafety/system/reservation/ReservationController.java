@@ -1,9 +1,6 @@
 package com.labsafety.system.reservation;
 
-import com.labsafety.system.reservation.dto.CreateReservationRequest;
-import com.labsafety.system.reservation.dto.ReservationDecisionRequest;
-import com.labsafety.system.reservation.dto.ReservationResponse;
-import com.labsafety.system.reservation.dto.ReservationStatsResponse;
+import com.labsafety.system.reservation.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +8,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import com.labsafety.system.reservation.dto.RegisterVisitorRequest;
 
 @RestController
 @RequestMapping("/api/reservations")
@@ -45,7 +43,9 @@ public class ReservationController {
                 request.getStartTime(),
                 request.getEndTime(),
                 request.getPurpose(),
-                request.getRemark()
+                request.getRemark(),
+                request.getIdCardPhotoUrl(),
+                request.getFacePhotoUrl()
         );
 
         return ReservationMapper.toResponse(reservation);
@@ -96,7 +96,7 @@ public class ReservationController {
      * Only allowed when status == APPROVED
      */
     @PutMapping("/{id}/check-in")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('TEACHER')")
     public ReservationResponse checkIn(@PathVariable Long id,
                                        Authentication authentication) {
 
@@ -112,7 +112,7 @@ public class ReservationController {
      * Only allowed when status == CHECKED_IN
      */
     @PutMapping("/{id}/check-out")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('TEACHER')")
     public ReservationResponse checkOut(@PathVariable Long id,
                                         Authentication authentication) {
 
@@ -190,7 +190,7 @@ public class ReservationController {
      * /api/reservations?status=APPROVED&labId=4&page=0&size=10
      */
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
     public Page<ReservationResponse> adminSearch(
             @RequestParam(required = false) ReservationStatus status,
             @RequestParam(required = false) Long labId,
@@ -208,5 +208,17 @@ public class ReservationController {
     @PreAuthorize("hasRole('ADMIN')")
     public ReservationStatsResponse stats() {
         return reservationStatsService.getStats();
+    }
+
+    @PutMapping("/{id}/register")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ReservationResponse register(@PathVariable Long id,
+                                        @Valid @RequestBody RegisterVisitorRequest request,
+                                        Authentication authentication) {
+
+        String username = authentication.getName();
+
+        Reservation reservation = reservationService.registerVisitor(id, username, request);
+        return ReservationMapper.toResponse(reservation);
     }
 }

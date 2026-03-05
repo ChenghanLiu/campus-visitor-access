@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
@@ -141,4 +142,14 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Transactional
     @Query("delete from Reservation r where r.student.id = :studentId")
     int deleteAllByStudentId(@Param("studentId") Long studentId);
+
+    @Query("""
+    select r from Reservation r
+    left join fetch r.lab
+    left join fetch r.equipment
+    left join fetch r.student
+    left join fetch r.approver
+    where r.id = :id
+    """)
+    Optional<Reservation> findDetailById(@Param("id") Long id);
 }

@@ -104,6 +104,25 @@ public class Reservation {
     @Column(name = "check_out_time")
     private LocalDateTime checkOutTime;
 
+    // ===== Visitor Registration (check/verify) =====
+    @Column(name = "id_card_photo_url", length = 500)
+    private String idCardPhotoUrl;
+
+    @Column(name = "face_photo_url", length = 500)
+    private String facePhotoUrl;
+
+    @Column(name = "verified_at")
+    private LocalDateTime verifiedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "verified_by_id")
+    private User verifiedBy;
+
+    @Column(name = "verify_note", length = 500)
+    private String verifyNote;
+
+
+
     public LocalDateTime getCheckInTime() { return checkInTime; }
     public void setCheckInTime(LocalDateTime checkInTime) { this.checkInTime = checkInTime; }
 
@@ -114,4 +133,45 @@ public class Reservation {
     public void setDecisionNote(String decisionNote) { this.decisionNote = decisionNote; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public void setIdCardPhotoUrl(String idCardPhotoUrl) {
+        this.idCardPhotoUrl = idCardPhotoUrl;
+    }
+    public void setFacePhotoUrl(String facePhotoUrl) {
+        this.facePhotoUrl = facePhotoUrl;
+    }
+    public void setVerifyNote(String verifyNote) {
+        this.verifyNote = verifyNote;
+    }
+    public void setVerifiedAt(LocalDateTime verifiedAt) {
+        this.verifiedAt = verifiedAt;
+    }
+    public void setVerifiedBy(User verifiedBy) {
+        this.verifiedBy = verifiedBy;
+    }
+    // =========================
+// getters (no setters)
+// =========================
+
+
+
+    public String getIdCardPhotoUrl() {
+        return idCardPhotoUrl;
+    }
+
+    public String getFacePhotoUrl() {
+        return facePhotoUrl;
+    }
+
+    public LocalDateTime getVerifiedAt() {
+        return verifiedAt;
+    }
+
+    public User getVerifiedBy() {
+        return verifiedBy;
+    }
+
+    public String getVerifyNote() {
+        return verifyNote;
+    }
 }

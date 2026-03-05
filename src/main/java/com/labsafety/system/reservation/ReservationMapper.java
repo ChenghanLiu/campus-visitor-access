@@ -48,6 +48,20 @@ public final class ReservationMapper {
         resp.setDecidedAt(reservation.getDecidedAt());
         resp.setDecisionNote(reservation.getDecisionNote());
         resp.setCreatedAt(reservation.getCreatedAt());
+        // === 照片/核检/出入（新增）===
+        resp.setIdCardPhotoUrl(reservation.getIdCardPhotoUrl());
+        resp.setFacePhotoUrl(reservation.getFacePhotoUrl());
+
+        resp.setVerifiedAt(reservation.getVerifiedAt());
+        resp.setVerifyNote(reservation.getVerifyNote());
+
+        if (reservation.getVerifiedBy() != null) {
+            resp.setVerifiedById(reservation.getVerifiedBy().getId());
+            resp.setVerifiedByUsername(reservation.getVerifiedBy().getUsername());
+        }
+
+        resp.setCheckInTime(reservation.getCheckInTime());
+        resp.setCheckOutTime(reservation.getCheckOutTime());
 
         return resp;
     }

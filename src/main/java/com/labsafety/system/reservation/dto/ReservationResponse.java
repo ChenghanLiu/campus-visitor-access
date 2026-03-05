@@ -33,6 +33,17 @@ public class ReservationResponse {
 
     private LocalDateTime createdAt;
 
+    private String idCardPhotoUrl;
+    private String facePhotoUrl;
+
+    private LocalDateTime verifiedAt;
+    private Long verifiedById;
+    private String verifiedByUsername;
+    private String verifyNote;
+
+    private LocalDateTime checkInTime;
+    private LocalDateTime checkOutTime;
+
     public ReservationResponse() {
     }
 
@@ -88,4 +99,29 @@ public class ReservationResponse {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    // ===== getters & setters =====
+    public String getIdCardPhotoUrl() { return idCardPhotoUrl; }
+    public void setIdCardPhotoUrl(String idCardPhotoUrl) { this.idCardPhotoUrl = idCardPhotoUrl; }
+
+    public String getFacePhotoUrl() { return facePhotoUrl; }
+    public void setFacePhotoUrl(String facePhotoUrl) { this.facePhotoUrl = facePhotoUrl; }
+
+    public LocalDateTime getVerifiedAt() { return verifiedAt; }
+    public void setVerifiedAt(LocalDateTime verifiedAt) { this.verifiedAt = verifiedAt; }
+
+    public Long getVerifiedById() { return verifiedById; }
+    public void setVerifiedById(Long verifiedById) { this.verifiedById = verifiedById; }
+
+    public String getVerifiedByUsername() { return verifiedByUsername; }
+    public void setVerifiedByUsername(String verifiedByUsername) { this.verifiedByUsername = verifiedByUsername; }
+
+    public String getVerifyNote() { return verifyNote; }
+    public void setVerifyNote(String verifyNote) { this.verifyNote = verifyNote; }
+
+    public LocalDateTime getCheckInTime() { return checkInTime; }
+    public void setCheckInTime(LocalDateTime checkInTime) { this.checkInTime = checkInTime; }
+
+    public LocalDateTime getCheckOutTime() { return checkOutTime; }
+    public void setCheckOutTime(LocalDateTime checkOutTime) { this.checkOutTime = checkOutTime; }
 }

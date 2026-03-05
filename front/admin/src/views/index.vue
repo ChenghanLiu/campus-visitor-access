@@ -23,17 +23,13 @@
           </el-menu-item>
 
 
-          <el-menu-item index="/experiments">
-            实验项目管理
-          </el-menu-item>
+
 
           <el-menu-item index="/reservations">
             预约管理
           </el-menu-item>
 
 
-
-          <el-menu-item index="/inspection">安全检查管理</el-menu-item>
 
           <el-menu-item index="/analytics" v-if="isAdmin">统计分析</el-menu-item>
 

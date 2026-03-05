@@ -4,6 +4,7 @@ import com.labsafety.system.equipment.Equipment;
 import com.labsafety.system.equipment.EquipmentRepository;
 import com.labsafety.system.lab.Lab;
 import com.labsafety.system.lab.LabRepository;
+import com.labsafety.system.reservation.dto.RegisterVisitorRequest;
 import com.labsafety.system.user.User;
 import com.labsafety.system.user.UserRepository;
 import org.springframework.security.access.AccessDeniedException;
@@ -51,7 +52,9 @@ public class ReservationService {
                                          LocalDateTime startTime,
                                          LocalDateTime endTime,
                                          String purpose,
-                                         String remark) {
+                                         String remark,
+                                         String idCardPhotoUrl,
+                                         String facePhotoUrl) {
 
         validateTimeRange(startTime, endTime);
 
@@ -81,6 +84,9 @@ public class ReservationService {
         reservation.setEndTime(endTime);
         reservation.setPurpose(purpose);
         reservation.setRemark(remark);
+        reservation.setIdCardPhotoUrl(idCardPhotoUrl);
+        reservation.setFacePhotoUrl(facePhotoUrl);
+
 
         Reservation saved = reservationRepository.save(reservation);
         initializeForResponse(saved);
@@ -147,6 +153,39 @@ public class ReservationService {
         return saveAndInit(reservation);
     }
 
+    @Transactional
+    public Reservation registerVisitor(Long id, String verifierUsername, RegisterVisitorRequest req) {
+
+        Reservation r = reservationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reservation not found: " + id));
+
+        // 1) status guard (only APPROVED can register)
+        if (r.getStatus() != ReservationStatus.APPROVED) {
+            throw new RuntimeException("Only APPROVED reservations can be registered, current=" + r.getStatus());
+        }
+
+        // 2) set fields (example)
+        r.setIdCardPhotoUrl(req.getIdCardPhotoUrl());
+        r.setFacePhotoUrl(req.getFacePhotoUrl());
+        r.setVerifyNote(req.getVerifyNote());
+        r.setVerifiedAt(LocalDateTime.now());
+
+        // verifiedById / verifiedByUsername — use whatever you decided (FK or String)
+        // if you use FK:
+        User verifier = userRepository.findByUsername(verifierUsername)
+                .orElseThrow(() -> new RuntimeException("Verifier not found: " + verifierUsername));
+        r.setVerifiedBy(verifier);
+
+        // 3) optional: set status to CHECKED_IN (must be allowed by DB check constraint)
+        r.setStatus(ReservationStatus.CHECKED_IN);
+        r.setCheckInTime(LocalDateTime.now());
+
+        reservationRepository.save(r);
+
+        // ✅ 4) Re-fetch with fetch-join, so mapper won't lazy-crash
+        return reservationRepository.findDetailById(id)
+                .orElseThrow(() -> new RuntimeException("Reservation not found after save: " + id));
+    }
     // ===================== CANCEL =====================
 
     public Reservation cancelAsStudent(Long reservationId, String studentUsername, String cancelNote) {
